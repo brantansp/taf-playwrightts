@@ -155,3 +155,129 @@ test('windows dialog', async({page})=>{
 
     await page.waitForTimeout(1000);
 })
+
+test('webtables', async({page})=>{
+    await page.getByTitle('Tables & Data').click();
+    await page.getByText('Smart Table').click();
+    await page.waitForLoadState("networkidle");
+
+    const tableRow = await page.getByRole('row', {name:"twitter@outlook.com"})
+    await tableRow.locator('.nb-edit').click()
+    await page.locator('input-editor').getByPlaceholder('Age').clear()
+    await page.locator('input-editor').getByPlaceholder('Age').fill('90')
+    await page.locator('.nb-checkmark').click()
+
+    await page.waitForTimeout(2000)
+
+    await page.locator('li').locator('a',{hasText:"2"}).click()
+
+    const rowId = page.getByRole('row',{name:"11"}).filter({has: page.locator('td').nth(1).getByText("11")})
+    await rowId.locator('.nb-edit').click()
+    await page.locator('input-editor').getByPlaceholder('E-mail').clear()
+    await page.locator('input-editor').getByPlaceholder('E-mail').fill('90@90.com')
+    await page.locator('.nb-checkmark').click()
+    await expect (rowId.locator('td').nth(5)).toHaveText("90@90.com")
+    
+
+    const ages = ["20","30","40","200"]
+
+    for (let age of ages){
+        await page.locator('input-filter').getByPlaceholder('Age').clear()
+        await page.locator('input-filter').getByPlaceholder('Age').fill(age)
+        await page.waitForTimeout(500)
+
+        const items = page.locator('tbody tr')
+
+        for (let item of await items.all()){
+            const val = await item.locator('td').last().textContent()
+
+            if(age == '200'){
+                expect(await page.locator('tbody').textContent()).toContain('No data found')
+            } else {
+                expect(val).toEqual(age)
+            }
+        }
+    }
+})
+
+test('date picker', async({page})=>{
+    await page.getByTitle('Forms').click();
+    await page.getByText('Datepicker').click();
+    await page.waitForLoadState("networkidle");
+
+    const calendarInputfield = page.getByPlaceholder('Form Picker')
+
+    await calendarInputfield.click()
+    //await page.locator('[class="day-cell ng-star-inserted"]').locator('div', {hasText:"15"}).click()
+    //await page.waitForTimeout(2000)
+    //await expect(calendarInputfield).toHaveValue("Dec 15, 2024")
+
+    //await calendarInputfield.click()
+
+    let date = new Date();
+    date.setDate(date.getDate() + 700)
+
+    const expDate = date.getDate().toString()
+    const expMonthShort = date.toLocaleString('En-US',{month: 'short'})
+    const expMonthLong = date.toLocaleString('En-US', {month: 'long'})
+    const expYear = date.getFullYear()
+    const dateToAssert = `${expMonthShort} ${expDate}, ${expYear}`
+
+    let calMonthAndYear = await page.locator('nb-calendar-view-mode').textContent()
+    const expMonthAndYear = `${expMonthLong} ${expYear}`
+
+    while(!calMonthAndYear!.includes(expMonthAndYear)){
+        await page.locator('nb-calendar-pageable-navigation [data-name="chevron-right"]').click()
+        calMonthAndYear = await page.locator('nb-calendar-view-mode').textContent()
+    }
+
+    await page.locator('[class="day-cell ng-star-inserted"]').locator('div', {hasText:expDate}).click()
+    await expect(calendarInputfield).toHaveValue(dateToAssert)
+
+})
+
+test('slider test', async({page})=>{
+        const dragg = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger circle')
+        
+        // Updating the attribute
+        //dragg.evaluate( node => {
+        //    node.setAttribute('cx',"232")
+        //    node.setAttribute('cy',"232")
+        //})
+
+        //await dragg.click()
+
+        // Moving the mouse
+        const dragBox = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger')
+        await dragBox.scrollIntoViewIfNeeded()
+
+        const box = await dragBox.boundingBox();
+        const x = box!.x + box!.width/2
+        const y = box!.y + box!.height/2
+
+        await page.mouse.move(x,y)
+        await page.mouse.down()
+        await page.mouse.move(x+100, y)
+        await page.mouse.move(x+100, y+100)
+        await page.mouse.up()
+        await expect(dragBox).toContainText("30")
+
+        await page.waitForTimeout(2000)
+})
+
+test('drag and drop', async({page})=>{
+    await page.goto('https://www.globalsqa.com/demo-site/draganddrop/')
+
+    const photoManager = page.frameLocator('[rel-title="Photo Manager"] iframe')
+
+    await photoManager.locator('.ui-widget-header', {hasText:"High Tatras 2"}).dragTo(photoManager.locator('#trash'))
+    await page.waitForTimeout(2000)
+
+    await photoManager.locator('.ui-widget-header', {hasText:"High Tatras 3"}).hover()
+    await page.mouse.down()
+    await photoManager.locator("#trash").hover()
+    await page.mouse.up()
+    await page.waitForTimeout(2000)
+
+    await expect(photoManager.locator('#trash li h5')).toHaveText(['High Tatras 2','High Tatras 3'])
+})
