@@ -44,7 +44,7 @@ test.describe('Locating elements', () => {
         await expect (userName).toHaveValue('test3@example.com')
     })
 
-    test('Extracting test', async({page})=>{
+    test('Extracting text', async({page})=>{
         const basicForm = page.locator('nb-card', {hasText: "Basic form"});
         const userName = basicForm.getByRole('textbox', {name : "Email"});
         const password = basicForm.getByRole('textbox', {name:"Password"});

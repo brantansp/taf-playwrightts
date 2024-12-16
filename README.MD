@@ -25,6 +25,9 @@ test.only
 ## Ruuning the tests in CLI with trace on
 npx playwright test --project="chromium" --trace on
 
+## Ruuning the tests in CLI with debug
+npx playwright test --project="chromium" --debug
+
 ## If apage method returns a promise then it should be preceded by an await and the method should be async to avoid race condition. If it does not returns a promise then no need to have await
 
 ## ## ## ## ##
