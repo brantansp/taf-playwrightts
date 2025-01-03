@@ -1,5 +1,4 @@
-import {test,expect} from '../PageObjects/BasePage'
-
+import {test, expect} from '../PageObjects/BasePageFixture'
 
 test.beforeEach( async({page})=>{
     await page.goto('http://localhost:4200/');

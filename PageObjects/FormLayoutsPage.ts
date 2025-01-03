@@ -1,6 +1,7 @@
 import {Locator, Page, test, expect} from '@playwright/test'
+import { helperBase } from './helperBase'
 
-export class FormLayoutsPage{
+export class FormLayoutsPage extends helperBase{
 
     readonly page: Page
     readonly basicForm: Locator
@@ -9,8 +10,8 @@ export class FormLayoutsPage{
     readonly loginButton: Locator
 
     constructor(page: Page){
+        super(page)
         this.page = page
-
         this.basicForm = this.page.locator('nb-card', {hasText: "Basic form"});
         this.userNameBox = this.basicForm.getByRole('textbox', {name : "Email"});
         this.passwordBox = this.basicForm.getByRole('textbox', {name:"Password"});
@@ -26,7 +27,7 @@ export class FormLayoutsPage{
         await this.userNameBox.fill(`${userName}`);
         await this.passwordBox.fill(`${password}`);
         await this.loginButton.click();
-        await this.page.waitForTimeout(2000)
+        await this.waitForTimeOut(2000)
         await expect(this.userNameBox).toHaveValue(`${userName}`)
     }
 }
