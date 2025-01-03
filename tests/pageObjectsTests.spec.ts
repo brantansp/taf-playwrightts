@@ -1,6 +1,7 @@
-import {test} from '../PageObjects/BasePage.ts'
+import {test} from '../PageObjects/BasePageFixture.ts'
 import { LeftSideBarNavigation } from '../PageObjects/LeftSideBarNavigation'
 import { FormLayoutsPage } from '../PageObjects/FormLayoutsPage';
+import { PageObjectManaer } from '../PageObjects/PageObjectManager.ts';
 
 test.beforeEach( async({page})=>{
     await page.goto('http://localhost:4200/');
@@ -34,4 +35,14 @@ test('Login to the basic form', async({page})=>{
 test('Login to the basic form using custom fixture', async({sideBarNavigation, formLayoutPage})=>{
     await sideBarNavigation.navigateToFormLayout()
     await formLayoutPage.enterUserNameAndPasswordToSubmit('test3@example.com','password123')
+})
+
+/**
+ * Using page object manager to reduce the initialization of Pages
+ */
+test('Login to the basic form using page object manager', async({page})=>{
+    const pom = new PageObjectManaer(page)
+    
+    await pom.navigateTo().navigateToFormLayout()
+    await pom.onFormLayoutPage().enterUserNameAndPasswordToSubmit('test3@example.com','password123')
 })

@@ -17,6 +17,11 @@ export class FormLayoutsPage{
         this.loginButton = this.basicForm.getByRole('button', {name: "SUBMIT"});
     }
 
+    /**
+     * This method is to fill the username and password
+     * @param userName - should be alphanumeric and not null
+     * @param password - should not be empty
+     */
     async enterUserNameAndPasswordToSubmit(userName: String, password: String){
         await this.userNameBox.fill(`${userName}`);
         await this.passwordBox.fill(`${password}`);

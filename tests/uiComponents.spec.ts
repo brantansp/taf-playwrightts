@@ -1,4 +1,5 @@
 import {test, expect} from '@playwright/test';
+import { DatePickerPage } from '../PageObjects/DatePickerPage';
 
 test.beforeEach( async({page})=>{
     await page.goto('http://localhost:4200/');
@@ -215,7 +216,7 @@ test('date picker', async({page})=>{
     //await calendarInputfield.click()
 
     let date = new Date();
-    date.setDate(date.getDate() + 700)
+    date.setDate(date.getDate() + 100)
 
     const expDate = date.getDate().toString()
     const expMonthShort = date.toLocaleString('En-US',{month: 'short'})
@@ -234,6 +235,21 @@ test('date picker', async({page})=>{
     await page.locator('[class="day-cell ng-star-inserted"]').locator('div', {hasText:expDate}).click()
     await expect(calendarInputfield).toHaveValue(dateToAssert)
 
+})
+
+/**
+ * Example of using the page object to encapsulate the common code //Write once and use everywhere
+ */
+test('Date picker using page Objects', async({page})=>{
+    const datePickerPage = new DatePickerPage(page)
+    await page.getByTitle('Forms').click();
+    await page.getByText('Datepicker').click();
+    await page.waitForLoadState("networkidle");
+
+    const calendarInputfield = page.getByPlaceholder('Form Picker')
+
+    await datePickerPage.selectFormDatePicker(100)
+    await datePickerPage.selectRangeDatePicker(100, 110)
 })
 
 test('slider test', async({page})=>{
